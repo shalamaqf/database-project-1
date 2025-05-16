@@ -32,8 +32,9 @@ create table peminjaman
     id_buku int not null,
     tanggal_pinjam TIMESTAMP not null default current_timestamp,
     status_peminjaman status default 'Dipinjam',
-    constraint fk_siswa foreign key (id_siswa) REFERENCES siswa(id_siswa),
-    constraint fk_buku foreign key (id_buku) REFERENCES buku(id_buku)
+    constraint fk_siswa foreign key (id_siswa) REFERENCES siswa(id_siswa) on delete cascade,
+    constraint fk_buku foreign key (id_buku) REFERENCES buku(id_buku),
+    primary key(id_peminjaman)
 );
 
 
@@ -42,29 +43,9 @@ create table pengembalian
 (
     id_peminjaman int not null,
     tanggal_pengembalian TIMESTAMP not null default current_timestamp,
-    constraint fk_peminjaman foreign key(id_peminjaman) REFERENCES peminjaman(id_peminjaman)
+    constraint fk_peminjaman foreign key(id_peminjaman) REFERENCES peminjaman(id_peminjaman),
+    primary key (id_peminjaman)
 );
-
-
--- rename column nama
-alter table siswa
-rename column nama to nama_siswa;
-
-
--- add column stok_buku
-alter table buku
-add column stok_buku int not null;
-
-
--- add primary key in table peminjaman
-alter table peminjaman
-add primary key (id_peminjaman);
-
-
--- delete column tanggal_pengembalian in table peminjaman
-alter table peminjaman
-drop column tanggal_pengembalian;
-
 
 -- add check constraint in table buku, for check if stock is more or equal than 0
 alter table buku
@@ -102,14 +83,14 @@ values('Cantik Itu Luka', 'Eka Kurniawan', 1),
       ('Entrok', 'Okky Madasari', 3);
 
 
--- insert some values to table peminjaman
+-- insert values to table peminjaman
 insert into peminjaman(id_siswa, id_buku)
-values('1', '3'),
-      ('2', '1'),
-      ('3', '2'),
-      ('4', '3'),
-      ('5', '2'),
-      ('6', '10');
+values(1, 3),
+      (2, 1),
+      (3, 2),
+      (4, 3),
+      (5, 2),
+      (6, 10);
 
 
 -- update stok_buku after using peminjaman relation
@@ -138,7 +119,7 @@ set stok_buku = stok_buku - 1
 where id_buku = 10;
 
 
--- insert values to table peminjaman
+-- insert values to table pengembalian
 insert into pengembalian(id_peminjaman)
 values(1);
 
@@ -168,24 +149,4 @@ from peminjaman
 left join siswa on peminjaman.id_siswa = siswa.id_siswa
 left join buku on peminjaman.id_buku = buku.id_buku
 left join pengembalian on peminjaman.id_peminjaman = pengembalian.id_peminjaman;
-
-
--- try to right join query table siswa, buku, and pengembalian table into peminjaman table
-select siswa.nama_siswa, buku.nama_buku, pengembalian.tanggal_pengembalian, status_peminjaman
-from peminjaman
-right join siswa on peminjaman.id_siswa = siswa.id_siswa
-right join buku on peminjaman.id_buku = buku.id_buku
-right join pengembalian on peminjaman.id_peminjaman = pengembalian.id_peminjaman;
-
-
--- try to full join query table siswa, buku, and pengembalian table into peminjaman table
-select siswa.nama_siswa, buku.nama_buku, pengembalian.tanggal_pengembalian, status_peminjaman
-from peminjaman
-full join siswa on peminjaman.id_siswa = siswa.id_siswa
-full join buku on peminjaman.id_buku = buku.id_buku
-full join pengembalian on peminjaman.id_peminjaman = pengembalian.id_peminjaman;
-
-
-
-
 
